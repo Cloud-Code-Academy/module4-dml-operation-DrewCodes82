@@ -34,7 +34,9 @@ public with sharing class DMLOperations {
         // Set some fields on the Account
 
         // Insert the Account into the database
-        insert newAcc; 
+        if(Schema.sObjectType.Account.isCreateable()){
+            insert newAcc;
+        }
         // Return the Id of the newly created Account
         return newAcc.Id;
     }
@@ -49,7 +51,10 @@ public with sharing class DMLOperations {
         // Create a new Account and set the fields inline
         Account newAcc = new Account(Name = name, Industry = industry);
         // Insert the Account
-        insert newAcc;
+        if(Schema.sObjectType.Account.isCreateable()){
+            insert newAcc;
+        }
+        
     }
 
     
@@ -71,7 +76,10 @@ public with sharing class DMLOperations {
         newCon.AccountId = accountId;
 
         // Insert the Contact into the database
-        insert newCon;
+        if(Schema.sObjectType.Contact.isCreateable()){
+            insert newCon;
+        }
+        
         // Return the Id of the newly created Contact
         return newCon.Id;
     }
