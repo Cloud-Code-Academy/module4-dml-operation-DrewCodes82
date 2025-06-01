@@ -197,7 +197,7 @@ public with sharing class DMLOperations {
         // Create a map of Opps by Name
         Map<String, Opportunity> existingOppsByName = new Map<String, Opportunity>();
         // Check if Opps with the names in the oppNames List already exist, if so, add to the map.
-        for (Opportunity opp : [SELECT Id, Name FROM Opportunity WHERE Name IN :oppNames AND AccountId IN :accList]) {
+        for (Opportunity opp : [SELECT Id, Name FROM Opportunity WHERE Name IN :oppNames AND AccountId = :accId]) {
             existingOppsByName.put(opp.Name, opp);
          }
         // Create a List of Opps to be Upserted
@@ -216,6 +216,7 @@ public with sharing class DMLOperations {
             }
             // Set values for required fields including the AccountId
             newOpp.StageName = 'Qualification';
+            newOpp.CloseDate = Date.today().addMonths(3);
             newOpp.AccountId = accId;
             // Add the Opportunity to the list
             oppsToUpsert.add(newOpp);
