@@ -183,9 +183,47 @@ public with sharing class DMLOperations {
      * @param oppNames The list of Opportunity names.
      */
     public static void upsertOpportunities(String accountName, List<String> oppNames) {
+        // Query to get Account where Name = accountName
+        List<Account> accList = [SELECT Id FROM Account WHERE Name = :accountName LIMIT 1];
+        // If an Account of that name doesn't exist, create one and commit to DB
+        if(accList.isEmpty()){
+            accList.add(new Account(Name = accountName));
+            upsert accList;
+            // Requery to get the AccountId
+            accList = [SELECT Id FROM Account WHERE Name = :accountName LIMIT 1];
+        }
+        // Save the AccountId to a variable for later use in the Opps
+        Id accId = accList[0].Id;
+        // Create a map of Opps by Name
+        Map<String, Opportunity> existingOppsByName = new Map<String, Opportunity>();
+        // Check if Opps with the names in the oppNames List already exist, if so, add to the map.
+        for (Opportunity opp : [SELECT Id, Name FROM Opportunity WHERE Name IN :oppNames AND AccountId IN :accList]) {
+            existingOppsByName.put(opp.Name, opp);
+         }
+        // Create a List of Opps to be Upserted
+        List<Opportunity> oppsToUpsert = new List<Opportunity>();
+
         // Loop through each Opportunity name
+        for(String name : oppNames){
             // Create an Opportunity with the given name
+            Opportunity newOpp;
+            if(existingOppsByName.containsKey(name)){
+                // update existing opp if it exists
+                newOpp = existingOppsByName.get(name);
+            } else {
+                // Create a new opp if they don't exist
+                newOpp = new Opportunity(Name = name);
+            }
+            // Set values for required fields including the AccountId
+            newOpp.StageName = 'Qualification';
+            newOpp.AccountId = accId;
             // Add the Opportunity to the list
+            oppsToUpsert.add(newOpp);
+
+        }
+        // Commit the list of Opps to the DB
+        upsert new List<Opportunity>(oppsToUpsert);
+             
     }
     
     /**
