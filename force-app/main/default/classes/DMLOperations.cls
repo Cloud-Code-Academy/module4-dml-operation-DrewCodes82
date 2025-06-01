@@ -237,14 +237,20 @@ public with sharing class DMLOperations {
 	 */
 	public static Account upsertAccount(String accountName) {
 		// Query for the Account
-		List<Account> accounts = [SELECT Id FROM Account WHERE Name = :accountName];
+		List<Account> accounts = [SELECT Id FROM Account WHERE Name = :accountName LIMIT 1];
 
 		// if the Account exists, update the description
-
-		// otherwise, create a new Account and set the description
-
+        if(!accounts.isEmpty()){
+            accounts[0].Description = 'Updated Account';
+        // otherwise, create a new Account and set the description
+        } else {
+            Account newAcc = new Account(Name = accountName, Description = 'New Account');
+            accounts.add(newAcc);
+        }
 		// Upsert the Account
-		return null;
+        upsert accounts;
+        
+		return accounts[0];
 	}
 
     /**
