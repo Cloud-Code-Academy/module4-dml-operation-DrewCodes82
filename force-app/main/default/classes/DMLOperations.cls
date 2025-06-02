@@ -282,11 +282,21 @@ public with sharing class DMLOperations {
      * @param leadNames The list of Lead names to be inserted.
      */
     public static void insertAndDeleteLeads(List<String> leadNames) {
+        List<Lead> leadsForInsert = new List<Lead>();
         // Loop through each Lead name
-
+        for (String name : leadNames){
+            Lead newLead = new Lead(LastName = name, Status = 'Open - Not Contacted', Company = 'TBD');
+            leadsForInsert.add(newLead);
+        }
         // Insert the Leads
-
+        if(Schema.sObjectType.Lead.isCreateable()){
+            insert leadsForInsert;
+        }
         // Delete the Leads
+        if(Schema.sObjectType.Lead.isDeletable()){
+            delete leadsForInsert;
+        }
+        
     }
 
 
