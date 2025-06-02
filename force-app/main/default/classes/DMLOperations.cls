@@ -307,8 +307,20 @@ public with sharing class DMLOperations {
      * @param numOfCases The number of cases to create.
      */
     public static void createAndDeleteCases(String accountId, Integer numOfCases) {
-        // Insert the cases
+        List<Case> casesForInsert = new List<Case>();
 
+        for (Integer i = 0; i < numOfCases; i++){
+            Case newCase = new Case(AccountId = accountId, Status = 'New', Origin = 'Email');
+            casesForInsert.add(newCase);
+        }
+        // Insert the cases
+        if(Schema.sObjectType.Case.isCreateable()){
+            insert casesForInsert;
+        }
+        
         // Delete the cases
+        if(Schema.sObjectType.Case.isDeletable()){
+            delete casesForInsert;
+        }
     }
 }
